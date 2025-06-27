@@ -1,59 +1,49 @@
 from PIL import Image
-import argparse
+from cryptography.fernet import Fernet
 
 def message_to_binary(message):
-    """Convert string message to a binary string."""
-    return ''.join(format(ord(char), '08b') for char in message)
+    return ''.join(format(byte, '08b') for byte in message)
 
-def encode_image(input_image_path, output_image_path, secret_message):
-    """Embed a secret message into the image using LSB steganography."""
-    
-    secret_message += "####"
-    binary_message = message_to_binary(secret_message)
-    msg_index = 0
-    msg_length = len(binary_message)
+def encode_message():
+    img_path = input("Enter image path to encode: ").strip()
+    output_path = input("Enter output image name: ").strip()
+    secret = input("Enter the message to hide: ").strip()
+    key = Fernet.generate_key()
 
-    #Load image
-    img = Image.open(input_image_path)
+    print(f"[+] Encryption key (save this for decoding):\n{key.decode()}")
+    fernet = Fernet(key)
+    encrypted_msg = fernet.encrypt(secret.encode()) + b'####'
+    binary_data = message_to_binary(encrypted_msg)
+
+    img = Image.open(img_path)
     if img.mode != 'RGB':
         img = img.convert('RGB')
     pixels = img.load()
-
     width, height = img.size
 
+    data_index = 0
     for y in range(height):
-        for x in range(width):
-            if msg_index >= msg_length:
-                break
-            
-            r, g, b = pixels[x, y]
-
-            #Modifying the LSB of each color channel
-            r = (r & ~1) | int(binary_message[msg_index]) if msg_index < msg_length else r
-            msg_index += 1
-            g = (g & ~1) | int(binary_message[msg_index]) if msg_index < msg_length else g
-            msg_index += 1
-            b = (b & ~1) | int(binary_message[msg_index]) if msg_index < msg_length else b
-            msg_index += 1
-
-            pixels[x, y] = (r, g, b)
-
-        if msg_index >= msg_length:
+      for x in range(width):
+        if data_index >= len(binary_data):
             break
 
-    img.save(output_image_path)
-    print(f"[+] Image saved to {output_image_path}")
+        r, g, b = pixels[x, y]
 
-    print(f"[+] Message encoded and saved as '{output_image_path}'")
+        if data_index < len(binary_data):
+            r = (r & ~1) | int(binary_data[data_index])
+            data_index += 1
+        if data_index < len(binary_data):
+            g = (g & ~1) | int(binary_data[data_index])
+            data_index += 1
+        if data_index < len(binary_data):
+            b = (b & ~1) | int(binary_data[data_index])
+            data_index += 1
 
-#CLI
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="LSB Image Steganography Encoder")
-    parser.add_argument("input", help="Path to the input image (PNG recommended)")
-    parser.add_argument("output", help="Path to save the output stego-image")
-    parser.add_argument("message", help="Secret message to hide in the image")
+        pixels[x, y] = (r, g, b)
 
-    args = parser.parse_args()
+      if data_index >= len(binary_data):
+        break
 
-    encode_image(args.input, args.output, args.message)
 
+    img.save(output_path)
+    print(f"[+] Message encoded and saved to {output_path}")

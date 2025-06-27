@@ -1,28 +1,22 @@
 from PIL import Image
-import argparse
+from cryptography.fernet import Fernet
 
-def binary_to_message(binary_data):
-    # Trim excess bits that don't form a full byte
-    if len(binary_data) % 8 != 0:
-        binary_data = binary_data[:-(len(binary_data) % 8)]
-    
-    chars = []
-    for i in range(0, len(binary_data), 8):
-        byte = binary_data[i:i+8]
-        chars.append(chr(int(byte, 2)))
-    return ''.join(chars)
+def binary_to_bytes(binary_data):
+    return bytes(int(binary_data[i:i+8], 2) for i in range(0, len(binary_data), 8))
 
-def decode_image(image_path):
-    print(f"[DEBUG] Opening image: {image_path}")
-    img = Image.open(image_path)
-    
+def decode_message():
+    img_path = input("Enter image path to decode: ").strip()
+    key_input = input("Enter the encryption key: ").strip()
+    key = key_input.encode()
+    fernet = Fernet(key)
+
+    img = Image.open(img_path)
     if img.mode != 'RGB':
         img = img.convert('RGB')
-    
-    binary_data = ''
+
     pixels = img.load()
     width, height = img.size
-    print(f"[DEBUG] Image size: {width} x {height}")
+    binary_data = ''
 
     for y in range(height):
         for x in range(width):
@@ -31,24 +25,16 @@ def decode_image(image_path):
             binary_data += str(g & 1)
             binary_data += str(b & 1)
 
-    print(f"[DEBUG] Total bits collected: {len(binary_data)}")
-    decoded_message = binary_to_message(binary_data)
+    byte_data = binary_to_bytes(binary_data)
+    end_index = byte_data.find(b'####')
+    if end_index == -1:
+        print("[!] No hidden message found.")
+        return
 
-    delimiter = '####'
-    if delimiter in decoded_message:
-        decoded_message = decoded_message.split(delimiter)[0]
-        print(f"[+] Hidden message extracted:\n{decoded_message}")
-    else:
-        print("[!] Delimiter not found. Full message:")
-        print(decoded_message[:100] + '...')  # Print preview if very long
+    encrypted_msg = byte_data[:end_index]
 
-    return decoded_message
-
-
-if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser(description="Decode hidden message from stego image")
-    parser.add_argument("image", help="Path to the stego image file")
-
-    args = parser.parse_args()
-    decode_image(args.image)
+    try:
+        decrypted = fernet.decrypt(encrypted_msg).decode()
+        print(f"[+] Hidden message:\n{decrypted}")
+    except Exception as e:
+        print(f"[!] Decryption failed: {e}")
