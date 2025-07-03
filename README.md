@@ -5,11 +5,12 @@ CovertComm is a Python-based, CLI tool that uses Steganography to hide encrypted
 
 ## 📌 FEATURES 📌
 
-- 🔐 AES-level symmetric encryption with Fernet
-- 🖼️ LSB-based image steganography
-- 📡 Network-based transmission of stego-images
-- 🧾 Secure key sharing over a separate TCP channel
-- 🔧 CLI interface with intuitive commands
+- 🔐 AES-128 encrypted message handling using Fernet
+- 🖼️ LSB-based steganography in images (RGB .png)
+- 📡 Secure TCP-based transmission via Python sockets
+- 🌐 Seamless internet exposure using `ngrok` TCP tunnels
+- 🧾 Separate key transmission module for confidentiality
+- 🧑‍💻 Easy-to-use CLI interface
 
 ## 🛠️ Installation
 
@@ -17,12 +18,14 @@ CovertComm is a Python-based, CLI tool that uses Steganography to hide encrypted
 
 - Python 3.7+
 - pip packages: `Pillow`, `cryptography`, `pyfiglet`
-
+- Ngrok or a similar TCP tunneling application
 ### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
+Additionally, download and authenticate Ngrok from https://ngrok.com/download
+
 ## 🚀 Usage 🚀
 After making `main.py` executable(or renaming it to `covertcomm`):-
 
@@ -49,24 +52,43 @@ python3 covertcomm <command>
 
 
 ## 📥 Example Workflow 📥
-Sender Side
+- Sender Side
 ```bash
 python3 covertcomm encode
 python3 covertcomm send-key
 python3 covertcomm send
 ```
-Receiver Side
+Use the Ngrok TCP Address (4.tcp.ngrok.io) and the corresponding port wherever prompted.
+
+Remember to always specify the filetype for the images (.PNG), or else you will have errors when encoding messages into them.
+- Receiver Side
 ```bash
 python3 covertcomm receive-key
+ngrok tcp <port number> (in a different terminal)
 python3 covertcomm receive
 python3 covertcomm decode
 ```
+The port used to make the ngrok tunnel must match the port used for receiving the files, or else you will have errors.
+
+🧠 Example Use Case
+| Role     | Action            | Command                    |
+| -------- | ----------------- | -------------------------- |
+| Receiver | Receive key       | `./covertcomm receive-key` |
+| Receiver | Expose key port   | `ngrok tcp 9998`           |
+| Receiver | Receive image     | `./covertcomm receive`     |
+| Receiver | Expose image port | `ngrok tcp 9999`           |
+| Sender   | Encode message    | `./covertcomm encode`      |
+| Sender   | Send image        | `./covertcomm send`        |
+| Sender   | Send key          | `./covertcomm send-key`    |
+| Receiver | Decode message    | `./covertcomm decode`      |
+
+
 ## 🧠 Technical Overview 🧠
 - Steganography: Least Significant Bit (LSB) encoding in RGB image pixels.
 
 - Encryption: Symmetric encryption using cryptography.Fernet.
 
-- Key Channel: Separate TCP socket for secure key delivery.
+- Key Channel: Separate TCP socket for secure key delivery, done using Ngrok via TCP Tunneling.
 
 - Transport: Standard Python socket module for image transmission.
 
