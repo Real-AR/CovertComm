@@ -6,17 +6,17 @@ from network_receiver import receive_image
 from key_sender import send_key
 from key_receiver import receive_key
 
-def main():
-    print('''
-                                                                             
- ,-----.                               ,--.   ,-----.                            
-'  .--./ ,---.,--.  ,--.,---. ,--.--.,-'  '-.'  .--./ ,---. ,--,--,--.,--,--,--. 
-|  |    | .-. |\  `'  /| .-. :|  .--''-.  .-'|  |    | .-. ||        ||        | 
-'  '--'\' '-' ' \    / \   --.|  |     |  |  '  '--'\' '-' '|  |  |  ||  |  |  | 
- `-----' `---'   `--'   `----'`--'     `--'   `-----' `---' `--`--`--'`--`--`--' 
-                                                                                 
 
-    ''')
+def display_banner():
+        try:
+            with open("ascii art.txt", "r", encoding="ascii") as f:
+                banner = f.read()
+                print(banner)
+        except FileNotFoundError:
+            print("[!] Banner file not found.")
+
+def main():
+    display_banner()
 
     parser = argparse.ArgumentParser(
         description="StegoComm - A Covert Communication Tool",
