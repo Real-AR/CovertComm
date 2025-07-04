@@ -6,7 +6,7 @@ CovertComm is a Python-based, CLI tool that uses Steganography to hide encrypted
 ## 📌 FEATURES 📌
 
 - 🔐 AES-128 encrypted message handling using Fernet
-- 🖼️ LSB-based steganography in images (RGB .png)
+- 🖼️ LSB-based steganography in images (currently only functional in RGB .png files)
 - 📡 Secure TCP-based transmission via Python sockets
 - 🌐 Seamless internet exposure using `ngrok` TCP tunnels
 - 🧾 Separate key transmission module for confidentiality
