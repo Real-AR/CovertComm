@@ -120,5 +120,4 @@ CovertComm/
 - For academic or demo use ONLY. Production-grade systems should use authenticated encryption and more robust secure channels.
 
 ## 🧑‍💻 Authors 🧑‍💻
-Anupam Rajiv Lakra (A023166923085)
-Akshay Kumar (A023166923082)
+Anupam Rajiv Lakra (rea1ar)
