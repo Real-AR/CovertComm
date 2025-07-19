@@ -115,8 +115,6 @@ CovertComm/
 ## 🔐 Security Considerations 🔐
 - The encryption key is never embedded in the image — it's transferred separately.
 
-- Ensure the key is not intercepted — use TLS or secure networks for best results.
-
 - For academic or demo use ONLY. Production-grade systems should use authenticated encryption and more robust secure channels.
 
 ## 🧑‍💻 Authors 🧑‍💻
