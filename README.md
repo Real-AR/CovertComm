@@ -26,61 +26,128 @@ pip install -r requirements.txt
 ```
 Additionally, download and authenticate Ngrok from https://ngrok.com/download
 
-## 🚀 Usage 🚀
-After making `main.py` executable(or renaming it to `covertcomm`):-
+## 🚀 Usage
+
+After cloning the repository and installing the dependencies from `requirements.txt`, you can run the tool from the terminal using:
 
 ```bash
-chmod +x main.py
-mv main.py covertcomm
+python3 main.py
 ```
-You can use it like a CLI tool as follows:
+
+You'll be greeted with the ASCII banner and a list of available options.
+
+---
+
+### 🔐 Encode a Message
+
+To embed an encrypted message inside an image:
 
 ```bash
-python3 covertcomm <command>
+python3 main.py encode
 ```
 
-## 🔧 Available Commands 🔧
+You will be prompted to:
 
-| Command       | Description                               |
-| ------------- | ----------------------------------------- |
-| `encode`      | Encrypt a message and hide it in an image |
-| `decode`      | Extract and decrypt a hidden message      |
-| `send`        | Send a stego image over the network       |
-| `receive`     | Receive a stego image over the network    |
-| `send-key`    | Send the encryption key to a receiver     |
-| `receive-key` | Receive the encryption key from a sender  |
+* Enter the message to hide
+* Provide the path to a PNG image (cover image)
+* Choose a destination for the stego-image (output)
+* Automatically generate and store the encryption key
+
+The result will be a `.png` file that visually looks the same but contains the hidden, encrypted message.
+
+---
+
+### 🧩 Decode a Message
+
+To extract and decrypt a message from a stego-image:
+
+```bash
+python3 main.py decode
+```
+
+You will be prompted to:
+
+* Provide the path to the stego-image
+* Enter the corresponding Fernet key
+* The original plaintext message will be displayed if the key is valid.
+
+---
+
+### 📤 Send Image to Receiver
+
+To send the stego-image to another device:
+
+```bash
+python3 main.py send-image
+```
+
+You will be prompted to:
+
+* Enter the ngrok forwarding address of the receiver
+* Select the stego-image file to send
+
+Make sure the receiver is running the `receive-image` command and listening on the correct endpoint.
+
+---
+
+### 📥 Receive Image from Sender
+
+To receive an image:
+
+```bash
+python3 main.py receive-image
+```
+
+This opens a TCP socket listener (ngrok tunnel recommended). The received image is saved to disk.
+
+---
+
+### 🔑 Send/Receive Encryption Key
+
+Use the following to share the encryption key securely over a **separate ngrok tunnel**:
+
+```bash
+python3 main.py send-key
+```
+
+```bash
+python3 main.py receive-key
+```
+
+Ensure both sender and receiver are running their respective modules concurrently.
+
 
 
 ## 📥 Example Workflow 📥
 - Sender Side
 ```bash
-python3 covertcomm encode
-python3 covertcomm send-key
-python3 covertcomm send
+python3 main.py encode
+python3 main.py send-key
+python3 main.py send
 ```
 Use the Ngrok TCP Address (4.tcp.ngrok.io) and the corresponding port wherever prompted.
 
 Remember to always specify the filetype for the images (.PNG), or else you will have errors when encoding messages into them.
 - Receiver Side
 ```bash
-python3 covertcomm receive-key
+python3 main.py receive-key
 ngrok tcp <port number> (in a different terminal)
-python3 covertcomm receive
-python3 covertcomm decode
+python3 main.py receive
+python3 main.py decode
 ```
 The port used to make the ngrok tunnel must match the port used for receiving the files, or else you will have errors.
 
 🧠 Example Use Case
 | Role     | Action            | Command                    |
 | -------- | ----------------- | -------------------------- |
-| Receiver | Receive key       | `./covertcomm receive-key` |
-| Receiver | Expose key port   | `ngrok tcp 9998`           |
-| Receiver | Receive image     | `./covertcomm receive`     |
-| Receiver | Expose image port | `ngrok tcp 9999`           |
-| Sender   | Encode message    | `./covertcomm encode`      |
-| Sender   | Send image        | `./covertcomm send`        |
-| Sender   | Send key          | `./covertcomm send-key`    |
-| Receiver | Decode message    | `./covertcomm decode`      |
+| Receiver | Receive key       | `main.py receive-key` |
+| Receiver | Expose key port   | `ngrok tcp 9998`      |
+| Receiver | Receive image     | `main.py receive`     |
+| Receiver | Expose image port | `ngrok tcp 9999`      |
+| Sender   | Encode message    | `main.py encode`      |
+| Sender   | Send image        | `main.py send`        |
+| Sender   | Send key          | `main.py send-key`    |
+| Receiver | Decode message    | `main.py decode`      |
 
 
 ## 🧠 Technical Overview 🧠
